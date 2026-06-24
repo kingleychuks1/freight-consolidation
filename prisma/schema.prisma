@@ -1,0 +1,209 @@
+// freight-consolidation/prisma/schema.prisma
+// Run: prisma db push  (Neon Postgres)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── USERS ───────────────────────────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  phone        String?
+  role         Role     @default(CUSTOMER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Customer-only fields
+  mailboxCode  String?  @unique   // e.g. "KLD-007"
+  address      String?            // their delivery address
+  country      String?
+
+  // Relations
+  packages      Package[]
+  shipments     Shipment[]
+  notifications Notification[]
+  packingSessions PackingSession[] @relation("Worker")
+
+  @@map("users")
+}
+
+enum Role {
+  CUSTOMER
+  WORKER
+  ADMIN
+}
+
+// ─── PACKAGES ────────────────────────────────────────────────────────────────
+
+model Package {
+  id             String        @id @default(cuid())
+  clientId       String
+  client         User          @relation(fields: [clientId], references: [id])
+
+  trackingNumber String?
+  retailer       String?       // "Amazon", "ASOS", "DPD", "eBay", etc.
+  origin         String?       // country of dispatch
+  description    String?       // worker note
+  weight         Float?        // kg
+  dimensions     String?       // "30x20x15cm"
+
+  photoUrl       String?       // Cloudflare R2 / Supabase Storage URL
+  labelUrl       String?       // generated label PDF URL
+
+  status         PackageStatus @default(RECEIVED)
+  receivedAt     DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  // Shipment link (set when packed)
+  shipmentId     String?
+  shipment       Shipment?     @relation(fields: [shipmentId], references: [id])
+
+  // Packing checklist
+  packedAt       DateTime?
+  packedBySessionId String?
+
+  notifications  Notification[]
+
+  @@map("packages")
+}
+
+enum PackageStatus {
+  RECEIVED              // just arrived at warehouse
+  AWAITING_CONSOLIDATION // client requested shipment
+  PACKED                // added to a shipment box
+  DISPATCHED            // shipment sent
+  DELIVERED             // confirmed delivery
+}
+
+// ─── SHIPMENTS ───────────────────────────────────────────────────────────────
+
+model Shipment {
+  id              String         @id @default(cuid())
+  clientId        String
+  client          User           @relation(fields: [clientId], references: [id])
+
+  method          ShipmentMethod
+  destination     String         // delivery address
+  destinationCountry String
+
+  totalWeight     Float?         // kg (calculated at packing)
+  totalVolume     Float?         // cm³
+  quotedPrice     Float?         // GBP
+  finalPrice      Float?
+
+  status          ShipmentStatus @default(QUOTE_PENDING)
+  trackingNumber  String?        // outbound carrier tracking
+  carrier         String?        // "DHL", "FedEx", "Royal Mail"
+
+  stripePaymentId String?
+  paidAt          DateTime?
+
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  dispatchedAt    DateTime?
+  estimatedArrival DateTime?
+
+  packages        Package[]
+  packingSessions PackingSession[]
+  notifications   Notification[]
+
+  @@map("shipments")
+}
+
+enum ShipmentMethod {
+  AIR
+  SEA
+  EXPRESS_AIR
+}
+
+enum ShipmentStatus {
+  QUOTE_PENDING
+  QUOTE_SENT
+  CONFIRMED       // client approved & paid
+  PACKING
+  READY           // packed, awaiting collection
+  DISPATCHED
+  IN_TRANSIT
+  DELIVERED
+  CANCELLED
+}
+
+// ─── PACKING SESSIONS ────────────────────────────────────────────────────────
+
+model PackingSession {
+  id          String    @id @default(cuid())
+  shipmentId  String
+  shipment    Shipment  @relation(fields: [shipmentId], references: [id])
+
+  workerId    String
+  worker      User      @relation("Worker", fields: [workerId], references: [id])
+
+  // IDs of packages physically checked off
+  checkedPackageIds String[]  // must match all shipment.packages before completing
+
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  notes       String?
+
+  createdAt   DateTime  @default(now())
+
+  @@map("packing_sessions")
+}
+
+// ─── NOTIFICATIONS ───────────────────────────────────────────────────────────
+
+model Notification {
+  id        String           @id @default(cuid())
+  clientId  String
+  client    User             @relation(fields: [clientId], references: [id])
+
+  type      NotificationType
+  channel   Channel
+  subject   String?
+  message   String
+  sentAt    DateTime         @default(now())
+  read      Boolean          @default(false)
+
+  // Optional links
+  packageId  String?
+  package    Package?  @relation(fields: [packageId], references: [id])
+  shipmentId String?
+  shipment   Shipment? @relation(fields: [shipmentId], references: [id])
+
+  @@map("notifications")
+}
+
+enum NotificationType {
+  PACKAGE_RECEIVED
+  SHIPMENT_QUOTE
+  PAYMENT_CONFIRMED
+  SHIPMENT_DISPATCHED
+  SHIPMENT_DELIVERED
+  MISSING_PACKAGE_ALERT
+}
+
+enum Channel {
+  EMAIL
+  WHATSAPP
+  SMS
+  IN_APP
+}
+
+// ─── MAILBOX CODES ───────────────────────────────────────────────────────────
+
+model MailboxCodeSequence {
+  id      Int    @id @default(autoincrement())
+  prefix  String @default("KLD")
+  counter Int    @default(1)
+
+  @@map("mailbox_code_sequence")
+}

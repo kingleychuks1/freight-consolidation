@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0B1F3A" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>FreightCo Worker</title>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+      background: #F8FAFC;
+      min-height: 100vh;
+      color: #0B1F3A;
+    }
+    header {
+      background: #0B1F3A;
+      color: white;
+      padding: 16px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    header .label { font-size: 11px; color: #93C5FD; letter-spacing: 0.1em; text-transform: uppercase; }
+    header h1 { font-size: 18px; font-weight: 700; margin-top: 2px; }
+    main { max-width: 480px; margin: 0 auto; padding: 16px; }
+    .card {
+      background: white;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .step-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #64748B;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 12px;
+    }
+    label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+    input, select {
+      width: 100%;
+      border: 1px solid #E2E8F0;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 14px;
+      outline: none;
+      margin-bottom: 10px;
+    }
+    input:focus, select:focus { border-color: #1A56DB; box-shadow: 0 0 0 3px rgba(26,86,219,0.1); }
+    .mailbox-input {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      text-align: center;
+    }
+    .client-found {
+      background: #F0FDF4;
+      border: 1px solid #86EFAC;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 13px;
+      color: #15803D;
+      margin-bottom: 10px;
+      display: none;
+    }
+    .client-found.visible { display: block; }
+    .btn-primary {
+      width: 100%;
+      background: #1A56DB;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-scan {
+      width: 100%;
+      background: #0B1F3A;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 8px;
+    }
+    #qr-reader { border-radius: 8px; overflow: hidden; margin-bottom: 8px; }
+    .success-banner {
+      background: #F0FDF4;
+      border: 1px solid #86EFAC;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      display: none;
+    }
+    .success-banner.visible { display: block; }
+    .success-banner h3 { color: #15803D; font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+    .success-banner p { color: #166534; font-size: 13px; }
+    .error-banner {
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-bottom: 12px;
+      display: none;
+      color: #B91C1C;
+      font-size: 13px;
+    }
+    .error-banner.visible { display: block; }
+    .sop {
+      background: #0B1F3A;
+      color: white;
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 8px;
+    }
+    .sop .sop-title { font-size: 11px; color: #93C5FD; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+    .sop ol { padding-left: 16px; }
+    .sop li { font-size: 13px; color: #BFDBFE; line-height: 1.7; }
+  </style>
+</head>
+<body>
+
+<header>
+  <p class="label">FreightCo Worker</p>
+  <h1>📦 Package Intake</h1>
+</header>
+
+<main>
+  <!-- Success -->
+  <div class="success-banner" id="successBanner">
+    <h3>✅ Package Logged</h3>
+    <p id="successMsg"></p>
+  </div>
+
+  <!-- Error -->
+  <div class="error-banner" id="errorBanner">
+    <span id="errorMsg"></span>
+  </div>
+
+  <!-- Step 1: Mailbox -->
+  <div class="card">
+    <p class="step-title">Step 1 — Scan Mailbox Code</p>
+    <button class="btn-scan" onclick="startScanner()">📷 Scan QR Code</button>
+    <div id="qr-reader" style="display:none;"></div>
+    <label>Or type it manually</label>
+    <input
+      type="text"
+      class="mailbox-input"
+      id="mailboxCode"
+      placeholder="KLD-007"
+      maxlength="10"
+      oninput="lookupMailbox(this.value)"
+    />
+    <div class="client-found" id="clientFound"></div>
+  </div>
+
+  <!-- Step 2: Package info -->
+  <div class="card">
+    <p class="step-title">Step 2 — Package Details</p>
+
+    <label>Tracking Number</label>
+    <input type="text" id="trackingNumber" placeholder="JD000XXXXXXXXX" style="font-family:monospace;" />
+
+    <label>Retailer</label>
+    <select id="retailer">
+      <option value="">— Select or leave to auto-detect —</option>
+      <option>Amazon</option>
+      <option>ASOS</option>
+      <option>DPD</option>
+      <option>Royal Mail</option>
+      <option>Evri</option>
+      <option>DHL</option>
+      <option>FedEx</option>
+      <option>UPS</option>
+      <option>SHEIN</option>
+      <option>Zara</option>
+      <option>eBay</option>
+      <option>AliExpress</option>
+      <option>Temu</option>
+      <option>Boohoo</option>
+      <option>PLT</option>
+      <option>Other</option>
+    </select>
+
+    <label>Origin Country</label>
+    <input type="text" id="origin" placeholder="e.g. UK, US, CN" />
+
+    <label>Weight (kg)</label>
+    <input type="number" id="weight" placeholder="0.0" step="0.1" min="0" />
+  </div>
+
+  <!-- Submit -->
+  <button class="btn-primary" id="submitBtn" onclick="submitIntake()">
+    ✅ Log Package &amp; Notify Client
+  </button>
+
+  <!-- SOP reminder -->
+  <div class="sop">
+    <p class="sop-title">📋 Quick SOP</p>
+    <ol>
+      <li>Find mailbox code on package label</li>
+      <li>Scan QR or type the code above</li>
+      <li>Scan carrier tracking barcode</li>
+      <li>Select retailer if known</li>
+      <li>Log — client is notified instantly</li>
+      <li>Place in physical bay labelled with their code</li>
+    </ol>
+  </div>
+</main>
+
+<script>
+  let scanner = null;
+  let lookupTimer = null;
+
+  function startScanner() {
+    const readerEl = document.getElementById("qr-reader");
+    readerEl.style.display = "block";
+    scanner = new Html5Qrcode("qr-reader");
+    scanner.start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: { width: 250, height: 250 } },
+      (text) => {
+        document.getElementById("mailboxCode").value = text.toUpperCase();
+        scanner.stop();
+        readerEl.style.display = "none";
+        lookupMailbox(text);
+      },
+      () => {}
+    ).catch(() => { readerEl.style.display = "none"; });
+  }
+
+  function lookupMailbox(code) {
+    clearTimeout(lookupTimer);
+    const el = document.getElementById("clientFound");
+    if (code.length < 4) { el.className = "client-found"; return; }
+    lookupTimer = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/clients/mailbox?code=${code.toUpperCase()}`);
+        if (res.ok) {
+          const d = await res.json();
+          el.textContent = `✓ ${d.name} — ${d.waitingCount} packages currently waiting`;
+          el.className = "client-found visible";
+        } else {
+          el.textContent = "⚠️ Mailbox code not found";
+          el.className = "client-found visible";
+          el.style.background = "#FEF2F2";
+          el.style.borderColor = "#FECACA";
+          el.style.color = "#B91C1C";
+        }
+      } catch {}
+    }, 400);
+  }
+
+  async function submitIntake() {
+    const mailboxCode = document.getElementById("mailboxCode").value.trim();
+    if (!mailboxCode) { showError("Please enter a mailbox code."); return; }
+
+    document.getElementById("submitBtn").disabled = true;
+    document.getElementById("submitBtn").textContent = "Logging…";
+    hideError();
+
+    try {
+      const body = {
+        mailboxCode: mailboxCode.toUpperCase(),
+        trackingNumber: document.getElementById("trackingNumber").value || undefined,
+        retailer:       document.getElementById("retailer").value || undefined,
+        origin:         document.getElementById("origin").value || undefined,
+        weight:         document.getElementById("weight").value
+                          ? parseFloat(document.getElementById("weight").value)
+                          : undefined,
+      };
+
+      const res = await fetch("/api/packages/intake", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify(body),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        showError(data.error ?? "Something went wrong");
+        return;
+      }
+
+      const pkg = data.package;
+      showSuccess(
+        `#${pkg.shortId} · ${pkg.clientName} (${pkg.mailboxCode}) · ${pkg.retailer} · ` +
+        `${pkg.waitingCount} packages now waiting. Client notified.`
+      );
+
+      // Reset package fields, keep mailbox code for next package
+      ["trackingNumber", "weight", "origin"].forEach(id => {
+        document.getElementById(id).value = "";
+      });
+      document.getElementById("retailer").value = "";
+
+    } finally {
+      document.getElementById("submitBtn").disabled = false;
+      document.getElementById("submitBtn").textContent = "✅ Log Package & Notify Client";
+    }
+  }
+
+  function showSuccess(msg) {
+    document.getElementById("successMsg").textContent = msg;
+    document.getElementById("successBanner").className = "success-banner visible";
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function showError(msg) {
+    document.getElementById("errorMsg").textContent = msg;
+    document.getElementById("errorBanner").className = "error-banner visible";
+  }
+
+  function hideError() {
+    document.getElementById("errorBanner").className = "error-banner";
+  }
+</script>
+
+</body>
+</html>
