@@ -53,6 +53,53 @@ export async function sendPackageReceived(opts: {
   });
 }
 
+// ── Payment Confirmed ─────────────────────────────────────────────────────────
+
+export async function sendPaymentConfirmed(opts: {
+  to: string;
+  clientName: string;
+  shipmentId: string;
+  amountPaid: number;
+  method: string;
+  packageCount: number;
+  destination: string;
+}) {
+  const { to, clientName, shipmentId, amountPaid, method, packageCount, destination } = opts;
+
+  await resend.emails.send({
+    from: FROM,
+    to,
+    subject: `✅ Payment received — your shipment is confirmed`,
+    html: `
+      <div style="font-family: Inter, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
+        <div style="background: #0B1F3A; padding: 20px 24px; border-radius: 8px 8px 0 0;">
+          <h1 style="color: white; margin: 0; font-size: 20px;">FreightCo Consolidation</h1>
+        </div>
+        <div style="background: #F8FAFC; padding: 24px; border: 1px solid #E2E8F0; border-top: none;">
+          <p style="color: #374151; font-size: 16px;">Hi <strong>${clientName}</strong>,</p>
+          <p style="color: #374151;">We've received your payment and your consolidated shipment is now <strong>confirmed</strong>. Our team will begin packing your ${packageCount} package${packageCount === 1 ? "" : "s"} shortly.</p>
+
+          <div style="background: white; border: 1px solid #E2E8F0; border-radius: 8px; padding: 16px; margin: 20px 0;">
+            <p style="margin: 4px 0; color: #0B1F3A; font-size: 15px;"><strong>Method:</strong> ${method}</p>
+            <p style="margin: 4px 0; color: #0B1F3A; font-size: 15px;"><strong>Packages:</strong> ${packageCount}</p>
+            <p style="margin: 4px 0; color: #0B1F3A; font-size: 15px;"><strong>Destination:</strong> ${destination}</p>
+            <p style="margin: 8px 0 4px; color: #10B981; font-size: 24px; font-weight: 700;">£${amountPaid.toFixed(2)} paid</p>
+          </div>
+
+          <a href="${process.env.NEXT_PUBLIC_SITE_URL}/shipments/${shipmentId}"
+             style="display: inline-block; background: #1A56DB; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600;">
+            Track Shipment
+          </a>
+
+          <p style="color: #64748B; font-size: 13px; margin-top: 24px;">
+            We'll notify you the moment your shipment is dispatched.
+          </p>
+        </div>
+      </div>
+    `,
+  });
+}
+
 // ── Shipment Dispatched ───────────────────────────────────────────────────────
 
 export async function sendShipmentDispatched(opts: {

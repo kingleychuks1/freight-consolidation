@@ -65,6 +65,29 @@ export async function whatsappPackageReceived(opts: {
   await client.sendMessage(phone, message);
 }
 
+export async function whatsappPaymentConfirmed(opts: {
+  phone: string;
+  clientName: string;
+  shipmentId: string;
+  amountPaid: number;
+  packageCount: number;
+}) {
+  const { phone, clientName, shipmentId, amountPaid, packageCount } = opts;
+  const client = twilioClient();
+
+  const message = [
+    `✅ *FreightCo — Payment Confirmed*`,
+    ``,
+    `Hi ${clientName}! We've received your payment of *£${amountPaid.toFixed(2)}*.`,
+    ``,
+    `Your shipment of *${packageCount}* package${packageCount === 1 ? "" : "s"} is confirmed and heading to packing.`,
+    ``,
+    `Track it: ${process.env.NEXT_PUBLIC_SITE_URL}/shipments/${shipmentId}`,
+  ].join("\n");
+
+  await client.sendMessage(phone, message);
+}
+
 export async function whatsappShipmentDispatched(opts: {
   phone: string;
   clientName: string;

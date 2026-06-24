@@ -3,6 +3,8 @@
 
 import { useState, useRef } from "react";
 
+const MAX_PHOTO_BYTES = 8 * 1024 * 1024; // keep in sync with upload route
+
 interface IntakeResult {
   shortId:     string;
   clientName:  string;
@@ -23,6 +25,8 @@ export default function IntakePage() {
   const [error,           setError]           = useState("");
   const [loading,         setLoading]         = useState(false);
   const [lookingUp,       setLookingUp]       = useState(false);
+  const [uploading,       setUploading]       = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const RETAILERS = [
     "Amazon", "ASOS", "DPD", "Royal Mail", "Evri", "DHL",
@@ -44,6 +48,35 @@ export default function IntakePage() {
       }
     } finally {
       setLookingUp(false);
+    }
+  }
+
+  async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setError("");
+
+    if (file.size > MAX_PHOTO_BYTES) {
+      setError("Photo is too large (max 8 MB).");
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/uploads/package-photo", { method: "POST", body: fd });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Photo upload failed");
+        return;
+      }
+      setPhotoUrl(data.url);
+    } catch {
+      setError("Photo upload failed — check your connection and try again.");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   }
 
@@ -220,16 +253,48 @@ export default function IntakePage() {
             </div>
 
             <div>
-              <label className="label">Photo URL</label>
+              <label className="label">Package Photo</label>
+
               <input
-                type="url"
-                className="input"
-                placeholder="https://... (upload photo first)"
-                value={photoUrl}
-                onChange={(e) => setPhotoUrl(e.target.value)}
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                className="hidden"
+                onChange={handlePhotoUpload}
               />
+
+              {photoUrl ? (
+                <div className="flex items-center gap-3">
+                  <img
+                    src={photoUrl}
+                    alt="Package"
+                    className="w-16 h-16 rounded-lg object-cover border border-brand-border flex-shrink-0"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-green-700 font-medium">✓ Photo uploaded</p>
+                    <button
+                      type="button"
+                      onClick={() => setPhotoUrl("")}
+                      className="text-xs text-brand-blue hover:underline mt-0.5"
+                    >
+                      Remove & retake
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="btn-secondary w-full text-sm disabled:opacity-50"
+                >
+                  {uploading ? "Uploading…" : "📷 Take / Upload Photo"}
+                </button>
+              )}
+
               <p className="text-xs text-brand-muted mt-1">
-                Upload the package photo to storage first, then paste the URL here.
+                The photo uploads straight to storage and attaches to this package.
               </p>
             </div>
           </div>

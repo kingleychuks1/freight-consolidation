@@ -27,7 +27,7 @@ export async function GET(
   const shipment = await prisma.shipment.findUnique({
     where: { id },
     include: {
-      packages:       { select: { id: true, retailer: true, origin: true, weight: true, photoUrl: true, shortId: true } },
+      packages:       { select: { id: true, retailer: true, origin: true, weight: true, photoUrl: true } },
       packingSessions: { orderBy: { createdAt: "desc" }, take: 1 },
       client:         { select: { name: true, mailboxCode: true } },
     },
@@ -43,7 +43,10 @@ export async function GET(
     mailboxCode:       shipment.client.mailboxCode,
     method:            shipment.method,
     totalPackages:     shipment.packages.length,
-    packages:          shipment.packages,
+    packages:          shipment.packages.map((p) => ({
+      ...p,
+      shortId: p.id.slice(-6).toUpperCase(),
+    })),
     session:           session
       ? {
           id:                session.id,
@@ -154,12 +157,5 @@ export async function POST(
     }
     console.error("[checklist] error:", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
-  }
-}
-
-// Helper type (Prisma doesn't auto-generate this)
-declare module "@prisma/client" {
-  interface Package {
-    shortId?: string;
   }
 }
