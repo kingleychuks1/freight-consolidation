@@ -1,4 +1,4 @@
-# FreightCo — Package Consolidation Platform
+# XPRESS CARGO — Package Consolidation Platform
 
 Air & sea freight consolidation system. Solves:
 1. **Mixing/missing packages** — mailbox codes + packing checklists with hard guards
@@ -192,7 +192,7 @@ prisma generate && next build
 
 | Role | Email | Password | Mailbox |
 |------|-------|----------|---------|
-| Admin | admin@freightco.com | admin1234 | — |
-| Worker | worker@freightco.com | worker1234 | — |
+| Admin | admin@gbxpresscargo.com | admin1234 | — |
+| Worker | worker@gbxpresscargo.com | worker1234 | — |
 | Customer | jane@example.com | customer1234 | KLD-001 |
 | Customer | kwame@example.com | customer1234 | KLD-002 |

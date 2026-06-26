@@ -51,7 +51,7 @@ export async function whatsappPackageReceived(opts: {
   const client = twilioClient();
 
   const message = [
-    `📦 *FreightCo — Package Received*`,
+    `📦 *XPRESS CARGO — Package Received*`,
     ``,
     `Hi ${clientName}! A package from *${retailer}* has just arrived for mailbox *${mailboxCode}*.`,
     ``,
@@ -76,7 +76,7 @@ export async function whatsappPaymentConfirmed(opts: {
   const client = twilioClient();
 
   const message = [
-    `✅ *FreightCo — Payment Confirmed*`,
+    `✅ *XPRESS CARGO — Payment Confirmed*`,
     ``,
     `Hi ${clientName}! We've received your payment of *£${amountPaid.toFixed(2)}*.`,
     ``,
@@ -99,7 +99,7 @@ export async function whatsappShipmentDispatched(opts: {
   const client = twilioClient();
 
   const message = [
-    `🚀 *FreightCo — Shipment Dispatched*`,
+    `🚀 *XPRESS CARGO — Shipment Dispatched*`,
     ``,
     `Hi ${clientName}! Your ${packageCount} package${packageCount > 1 ? "s" : ""} ${packageCount > 1 ? "have" : "has"} been dispatched via *${carrier}*.`,
     ``,
@@ -122,7 +122,7 @@ export async function whatsappQuoteReady(opts: {
   const client = twilioClient();
 
   const message = [
-    `💰 *FreightCo — Quote Ready*`,
+    `💰 *XPRESS CARGO — Quote Ready*`,
     ``,
     `Hi ${clientName}! Your shipping quote for *${packageCount}* package${packageCount > 1 ? "s" : ""} is ready.`,
     ``,

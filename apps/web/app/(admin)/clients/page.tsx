@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getSession } from "@/lib/auth/jwt";
 import prisma from "@/lib/db/prisma";
+import { LogoMark } from "@/components/Logo";
 
 export const dynamic = "force-dynamic";
 
@@ -35,9 +36,12 @@ export default async function ClientsPage() {
   return (
     <div className="min-h-screen bg-brand-surface">
       <header className="bg-brand-navy text-white px-6 py-4 flex items-center justify-between">
-        <div>
-          <p className="text-xs text-blue-300 font-mono tracking-widest uppercase">FreightCo Admin</p>
-          <h1 className="text-lg font-bold">Clients</h1>
+        <div className="flex items-center gap-3">
+          <Link href="/" aria-label="XPRESS CARGO home"><LogoMark className="h-9 w-auto" /></Link>
+          <div>
+            <p className="text-xs text-blue-300 font-mono tracking-widest uppercase">XPRESS CARGO Admin</p>
+            <h1 className="text-lg font-bold">Clients</h1>
+          </div>
         </div>
         <Link href="/intake" className="btn-primary text-sm">+ Log Intake</Link>
       </header>

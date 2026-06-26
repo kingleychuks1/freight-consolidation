@@ -2,7 +2,7 @@
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY!);
-const FROM = process.env.RESEND_FROM_EMAIL ?? "notifications@freightco.com";
+const FROM = process.env.RESEND_FROM_EMAIL ?? "notifications@gbxpresscargo.com";
 
 // ── Package Received ──────────────────────────────────────────────────────────
 
@@ -24,7 +24,7 @@ export async function sendPackageReceived(opts: {
     html: `
       <div style="font-family: Inter, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
         <div style="background: #0B1F3A; padding: 20px 24px; border-radius: 8px 8px 0 0;">
-          <h1 style="color: white; margin: 0; font-size: 20px;">FreightCo Consolidation</h1>
+          <h1 style="color: white; margin: 0; font-size: 20px;">XPRESS CARGO Consolidation</h1>
         </div>
         <div style="background: #F8FAFC; padding: 24px; border: 1px solid #E2E8F0; border-top: none;">
           <p style="color: #374151; font-size: 16px;">Hi <strong>${clientName}</strong>,</p>
@@ -73,7 +73,7 @@ export async function sendPaymentConfirmed(opts: {
     html: `
       <div style="font-family: Inter, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
         <div style="background: #0B1F3A; padding: 20px 24px; border-radius: 8px 8px 0 0;">
-          <h1 style="color: white; margin: 0; font-size: 20px;">FreightCo Consolidation</h1>
+          <h1 style="color: white; margin: 0; font-size: 20px;">XPRESS CARGO Consolidation</h1>
         </div>
         <div style="background: #F8FAFC; padding: 24px; border: 1px solid #E2E8F0; border-top: none;">
           <p style="color: #374151; font-size: 16px;">Hi <strong>${clientName}</strong>,</p>
@@ -121,7 +121,7 @@ export async function sendShipmentDispatched(opts: {
     html: `
       <div style="font-family: Inter, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
         <div style="background: #0B1F3A; padding: 20px 24px; border-radius: 8px 8px 0 0;">
-          <h1 style="color: white; margin: 0; font-size: 20px;">FreightCo Consolidation</h1>
+          <h1 style="color: white; margin: 0; font-size: 20px;">XPRESS CARGO Consolidation</h1>
         </div>
         <div style="background: #F8FAFC; padding: 24px; border: 1px solid #E2E8F0; border-top: none;">
           <p style="color: #374151; font-size: 16px;">Hi <strong>${clientName}</strong>,</p>
@@ -164,7 +164,7 @@ export async function sendQuoteReady(opts: {
     html: `
       <div style="font-family: Inter, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
         <div style="background: #0B1F3A; padding: 20px 24px; border-radius: 8px 8px 0 0;">
-          <h1 style="color: white; margin: 0; font-size: 20px;">FreightCo Consolidation</h1>
+          <h1 style="color: white; margin: 0; font-size: 20px;">XPRESS CARGO Consolidation</h1>
         </div>
         <div style="background: #F8FAFC; padding: 24px; border: 1px solid #E2E8F0; border-top: none;">
           <p style="color: #374151; font-size: 16px;">Hi <strong>${clientName}</strong>,</p>

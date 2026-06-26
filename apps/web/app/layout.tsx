@@ -3,8 +3,12 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "FreightCo — Package Consolidation",
+  title: "XPRESS CARGO — Package Consolidation",
   description: "Air & sea freight consolidation. Track every package from warehouse to your door.",
+  icons: {
+    icon: "/favicon.svg",
+    apple: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

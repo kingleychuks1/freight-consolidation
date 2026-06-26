@@ -33,7 +33,7 @@ export async function createShipmentCheckout(opts: {
           unit_amount: Math.round(amount * 100), // pence
           product_data: {
             name: `${method} consolidated shipment to ${destination}`,
-            description: `${packageCount} package${packageCount === 1 ? "" : "s"} · FreightCo Consolidation`,
+            description: `${packageCount} package${packageCount === 1 ? "" : "s"} · XPRESS CARGO Consolidation`,
           },
         },
       },

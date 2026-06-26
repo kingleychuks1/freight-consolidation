@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth/jwt";
 import prisma from "@/lib/db/prisma";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
+import { LogoMark } from "@/components/Logo";
 
 export const dynamic = "force-dynamic";
 
@@ -34,9 +35,12 @@ export default async function DashboardPage() {
     <div className="min-h-screen bg-brand-surface">
       {/* Header */}
       <header className="bg-brand-navy text-white px-6 py-4 flex items-center justify-between">
-        <div>
-          <span className="text-xs text-blue-300 font-mono tracking-widest uppercase">FreightCo</span>
-          <h1 className="text-lg font-bold">My Dashboard</h1>
+        <div className="flex items-center gap-3">
+          <Link href="/" aria-label="XPRESS CARGO home"><LogoMark className="h-9 w-auto" /></Link>
+          <div>
+            <span className="text-xs text-blue-300 font-mono tracking-widest uppercase">XPRESS CARGO</span>
+            <h1 className="text-lg font-bold">My Dashboard</h1>
+          </div>
         </div>
         <div className="text-right">
           <p className="text-xs text-blue-200">Your mailbox</p>

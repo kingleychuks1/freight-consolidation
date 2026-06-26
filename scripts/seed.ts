@@ -19,10 +19,10 @@ async function main() {
   // Admin user
   const adminHash = await bcrypt.hash("admin1234", 12);
   const admin = await prisma.user.upsert({
-    where:  { email: "admin@freightco.com" },
+    where:  { email: "admin@gbxpresscargo.com" },
     update: {},
     create: {
-      email:        "admin@freightco.com",
+      email:        "admin@gbxpresscargo.com",
       passwordHash: adminHash,
       name:         "Admin User",
       role:         "ADMIN",
@@ -33,10 +33,10 @@ async function main() {
   // Worker user
   const workerHash = await bcrypt.hash("worker1234", 12);
   const worker = await prisma.user.upsert({
-    where:  { email: "worker@freightco.com" },
+    where:  { email: "worker@gbxpresscargo.com" },
     update: {},
     create: {
-      email:        "worker@freightco.com",
+      email:        "worker@gbxpresscargo.com",
       passwordHash: workerHash,
       name:         "Warehouse Worker",
       role:         "WORKER",
@@ -136,8 +136,8 @@ async function main() {
 
   console.log("\n🎉 Seed complete!\n");
   console.log("Test logins:");
-  console.log("  Admin:    admin@freightco.com    / admin1234");
-  console.log("  Worker:   worker@freightco.com   / worker1234");
+  console.log("  Admin:    admin@gbxpresscargo.com    / admin1234");
+  console.log("  Worker:   worker@gbxpresscargo.com   / worker1234");
   console.log("  Customer: jane@example.com       / customer1234  (KLD-001)");
   console.log("  Customer: kwame@example.com      / customer1234  (KLD-002)");
 }

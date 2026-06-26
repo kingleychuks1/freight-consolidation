@@ -2,6 +2,8 @@
 "use client";
 
 import { useState, useRef } from "react";
+import Link from "next/link";
+import { LogoMark } from "@/components/Logo";
 
 const MAX_PHOTO_BYTES = 8 * 1024 * 1024; // keep in sync with upload route
 
@@ -130,9 +132,12 @@ export default function IntakePage() {
 
   return (
     <div className="min-h-screen bg-brand-surface">
-      <header className="bg-brand-navy text-white px-6 py-4">
-        <p className="text-xs text-blue-300 font-mono tracking-widest uppercase">FreightCo Admin</p>
-        <h1 className="text-lg font-bold">Package Intake</h1>
+      <header className="bg-brand-navy text-white px-6 py-4 flex items-center gap-3">
+        <Link href="/" aria-label="XPRESS CARGO home"><LogoMark className="h-9 w-auto" /></Link>
+        <div>
+          <p className="text-xs text-blue-300 font-mono tracking-widest uppercase">XPRESS CARGO Admin</p>
+          <h1 className="text-lg font-bold">Package Intake</h1>
+        </div>
       </header>
 
       <main className="max-w-lg mx-auto px-4 py-6">

@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Logo } from "@/components/Logo";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -71,10 +72,9 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-brand-surface flex flex-col">
       <header className="bg-brand-navy text-white px-6 py-4">
-        <Link href="/" className="text-xs text-blue-300 font-mono tracking-widest uppercase">
-          FreightCo
+        <Link href="/" aria-label="XPRESS CARGO home">
+          <Logo markClassName="h-8 w-auto" className="text-lg" />
         </Link>
-        <h1 className="text-lg font-bold">Consolidation Platform</h1>
       </header>
 
       <main className="flex-1 flex items-center justify-center px-4 py-10">
