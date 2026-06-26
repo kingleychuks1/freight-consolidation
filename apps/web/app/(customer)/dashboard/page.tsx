@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 export default async function DashboardPage() {
   const session = await getSession();
   if (!session) redirect("/login");
-  if (session.role !== "CUSTOMER") redirect("/admin");
+  if (session.role !== "CUSTOMER") redirect("/clients");
 
   const [packages, shipments] = await Promise.all([
     prisma.package.findMany({
